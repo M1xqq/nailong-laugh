@@ -32,13 +32,125 @@
       margin-bottom: 24px;
     }
 
-    #nailong { width: 260px; }
+    /* 奶龙本体：点击它就开笑 */
+    #nailong {
+      width: 260px;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    #nailong:hover { transform: scale(1.05); }
+    #nailong:active { transform: scale(0.95); }
+
+    /* 大笑状态：上下抖动 */
+    #nailong.laughing {
+      animation: shake-y 0.18s linear infinite;
+    }
+
+    @keyframes shake-y {
+      0%   { transform: translateY(0); }
+      50%  { transform: translateY(-22px); }
+      100% { transform: translateY(0); }
+    }
+
+    #btn {
+      margin-top: 28px;
+      padding: 12px 42px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      background: #f5a623;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #d18a0f;
+      transition: transform 0.1s;
+    }
+
+    #btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #d18a0f;
+    }
+
+    #btn.playing {
+      background: #ccc;
+      box-shadow: 0 4px 0 #999;
+    }
+
+    /* 大笑时飘出来的“哈哈哈哈” */
+    .haha {
+      position: fixed;
+      font-size: 22px;
+      font-weight: bold;
+      color: #f5a623;
+      pointer-events: none;
+      animation: float-up 1.2s ease-out forwards;
+    }
+
+    @keyframes float-up {
+      0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(-140px) rotate(18deg); }
+    }
   </style>
 </head>
 <body>
   <h1>🍋 奶龙大笑模拟器 🍋</h1>
-  <p class="tip">开发中：大笑音频与抖动交互即将上线……</p>
+  <p class="tip">点击奶龙，见证魔性大笑（再点一下可停止）</p>
 
   <img id="nailong" src="assets/nailong.png" alt="奶龙" />
+
+  <button id="btn">开笑！</button>
+
+  <audio id="laugh" src="assets/laugh.mp3" preload="auto"></audio>
+
+  <script>
+    const dragon = document.getElementById("nailong");
+    const btn = document.getElementById("btn");
+    const laugh = document.getElementById("laugh");
+
+    let laughing = false;
+
+    function startLaugh() {
+      laughing = true;
+      dragon.classList.add("laughing");
+      btn.classList.add("playing");
+      btn.textContent = "别笑了！";
+
+      // 从随机位置开始播，每次听感不完全一样
+      laugh.currentTime = Math.random() * 8;
+      laugh.play().catch(() => {});
+
+      spawnHaha();
+    }
+
+    function stopLaugh() {
+      laughing = false;
+      dragon.classList.remove("laughing");
+      btn.classList.remove("playing");
+      btn.textContent = "开笑！";
+      laugh.pause();
+    }
+
+    function toggle() {
+      laughing ? stopLaugh() : startLaugh();
+    }
+
+    // 大笑时往外飘“哈哈哈哈”
+    function spawnHaha() {
+      if (!laughing) return;
+      const span = document.createElement("span");
+      span.className = "haha";
+      span.textContent = "哈哈哈哈哈";
+      span.style.left = 20 + Math.random() * 60 + "vw";
+      span.style.top = 35 + Math.random() * 25 + "vh";
+      document.body.appendChild(span);
+      setTimeout(() => span.remove(), 1300);
+      setTimeout(spawnHaha, 350 + Math.random() * 400);
+    }
+
+    dragon.addEventListener("click", toggle);
+    btn.addEventListener("click", toggle);
+    laugh.addEventListener("ended", () => { if (laughing) startLaugh(); });
+  </script>
 </body>
 </html>
