@@ -77,6 +77,17 @@
       box-shadow: 0 4px 0 #999;
     }
 
+    .counter {
+      margin-top: 18px;
+      color: #b98a2a;
+      font-size: 14px;
+    }
+
+    .counter b {
+      font-size: 18px;
+      color: #f5a623;
+    }
+
     /* 大笑时飘出来的“哈哈哈哈” */
     .haha {
       position: fixed;
@@ -101,17 +112,22 @@
 
   <button id="btn">开笑！</button>
 
+  <p class="counter">今日已开笑 <b id="count">0</b> 次</p>
+
   <audio id="laugh" src="assets/laugh.mp3" preload="auto"></audio>
 
   <script>
     const dragon = document.getElementById("nailong");
     const btn = document.getElementById("btn");
     const laugh = document.getElementById("laugh");
+    const countEl = document.getElementById("count");
 
     let laughing = false;
+    let count = 0;
 
     function startLaugh() {
       laughing = true;
+      countEl.textContent = ++count;
       dragon.classList.add("laughing");
       btn.classList.add("playing");
       btn.textContent = "别笑了！";
