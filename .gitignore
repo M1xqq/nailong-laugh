@@ -1,0 +1,8 @@
+# 本地工具与临时文件，不进仓库
+.tools/
+search.html
+bili.txt
+assets/frame_*.png
+assets/nailong_trans.png
+assets/video_*.mp4
+assets/BV*.m4a
