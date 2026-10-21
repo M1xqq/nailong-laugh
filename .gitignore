@@ -1,4 +1,5 @@
 # 本地工具与临时文件，不进仓库
+.workbuddy/
 .tools/
 search.html
 bili.txt
