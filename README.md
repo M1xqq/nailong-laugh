@@ -10,6 +10,7 @@
 1. 奶龙开始上下抖动（CSS 动画，无需任何图片帧）
 2. 播放从 B 站原版视频里提取的"八级哥"魔性笑声
 3. 屏幕上不停飘出"哈哈哈哈哈"
+4. 按钮下方累计"今日已开笑 N 次"
 
 ## 怎么运行
 
@@ -36,8 +37,22 @@
 ```
 main（稳定版）
  └── dev（开发整合）
-      └── feature/laugh-audio（大笑音频）
-      └── feature/jump-shake（抖动交互）
+      ├── feature/laugh-audio   （大笑音频）    → 已合并
+      ├── feature/jump-shake    （抖动交互）    → 已合并
+      └── feature/laugh-counter （大笑计数器）  → 通过 PR 合并
+```
+
+其中 `feature/laugh-counter` 是在 Gitee 上走 **Pull Request** 合并进 `dev` 的，
+用来完整体验"分支开发 → PR → 合并"的流程。
+
+主要提交记录：
+
+```
+b4e040c feat: 初始化奶龙大笑模拟器页面骨架
+235109e feat: 添加B站原版提取的奶龙大笑音频，点击播放
+9ca75a4 feat: 点击时奶龙上下抖动，并飘出哈哈哈哈
+999eb3f feat: 新增大笑次数计数器
+a33d480 docs: 补充 README 和开发复盘
 ```
 
 详见 [开发复盘.md](开发复盘.md)。
