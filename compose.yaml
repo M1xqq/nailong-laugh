@@ -1,0 +1,8 @@
+services:
+  web:
+    build: .
+    image: nailong-laugh
+    container_name: nailong_laugh
+    ports:
+      - "8080:80"
+    restart: unless-stopped
