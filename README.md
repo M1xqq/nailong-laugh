@@ -27,6 +27,31 @@
 - 或者起一个静态服务器：`python -m http.server 8000`，然后访问 <http://localhost:8000>。
 
 > 注意浏览器自动播放策略：第一次需要用户点击页面（正好我们的交互就是点击，天然没问题）。
+### 方式三：docker部署(Nannan-1234贡献)
+
+暂未发布镜像，使用源码构建：
+
+```bash
+git clone https://github.com/nannan-1234/nailong-laugh.git
+cd nailong-laugh
+docker build -t nailong-laugh .
+```
+compose.yml:
+```yaml
+services:
+  web:
+    image: nailong-laugh
+    container_name: nailong_laugh
+    ports: 
+      - "127.0.0.1:8080:80"
+    restart: unless-stopped
+```
+运行：
+```bash
+docker compose up -d
+```
+访问：
+<http://localhost:8080>
 
 ## 使用了什么 Agent
 
