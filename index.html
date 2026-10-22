@@ -32,6 +32,35 @@
       margin-bottom: 24px;
     }
 
+    /* 四角装饰动图 */
+    .corner-gif {
+      position: fixed;
+      width: clamp(64px, 9vw, 112px);
+      height: auto;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .corner-gif.top-left {
+      top: clamp(8px, 2.5vw, 32px);
+      left: clamp(8px, 2.5vw, 32px);
+    }
+
+    .corner-gif.top-right {
+      top: clamp(8px, 2.5vw, 32px);
+      right: clamp(8px, 2.5vw, 32px);
+    }
+
+    .corner-gif.bottom-left {
+      bottom: clamp(8px, 2.5vw, 32px);
+      left: clamp(8px, 2.5vw, 32px);
+    }
+
+    .corner-gif.bottom-right {
+      right: clamp(8px, 2.5vw, 32px);
+      bottom: clamp(8px, 2.5vw, 32px);
+    }
+
     /* 奶龙本体：点击它就开笑 */
     #nailong {
       width: 260px;
@@ -94,6 +123,11 @@
   </style>
 </head>
 <body>
+  <img class="corner-gif top-left" src="assets/image.gif" alt="" aria-hidden="true" />
+  <img class="corner-gif top-right" src="assets/image.gif" alt="" aria-hidden="true" />
+  <img class="corner-gif bottom-left" src="assets/image.gif" alt="" aria-hidden="true" />
+  <img class="corner-gif bottom-right" src="assets/image.gif" alt="" aria-hidden="true" />
+
   <h1>🍋 奶龙大笑模拟器 🍋</h1>
   <p class="tip">点击奶龙，见证魔性大笑（再点一下可停止）</p>
 
