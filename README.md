@@ -32,18 +32,24 @@
 暂未发布镜像，使用源码构建：
 
 ```bash
-git clone https://github.com/nannan-1234/nailong-laugh.git
+git clone https://github.com/m1xqq/nailong-laugh.git
 cd nailong-laugh
 docker build -t nailong-laugh .
+
 ```
-compose.yml:
+或通过compose构建：
+```bash
+   docker compose up -d --build
+```
+compose.yml
 ```yaml
 services:
   web:
+    build: .
     image: nailong-laugh
     container_name: nailong_laugh
-    ports: 
-      - "127.0.0.1:8080:80"
+    ports:
+      - "8080:80"
     restart: unless-stopped
 ```
 运行：
@@ -51,7 +57,7 @@ services:
 docker compose up -d
 ```
 访问：
-<http://localhost:8080>
+<http://localhost:8080>，或者，你的服务器ip:8080
 
 ## 使用了什么 Agent
 
