@@ -120,6 +120,18 @@
       0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
       100% { opacity: 0; transform: translateY(-140px) rotate(18deg); }
     }
+
+    /* 底部访问量统计 */
+    .view-count {
+      margin-top: 14px;
+      color: #c0a06a;
+      font-size: 13px;
+    }
+
+    .view-count b {
+      color: #f5a623;
+      font-size: 15px;
+    }
   </style>
 </head>
 <body>
@@ -134,6 +146,10 @@
   <img id="nailong" src="assets/nailong.png" alt="奶龙" />
 
   <button id="btn">开笑！</button>
+
+  <p class="view-count">
+    👀 本站已被围观 <b id="busuanzi_value_site_pv">…</b> 次
+  </p>
 
   <audio id="laugh" src="assets/laugh.mp3" preload="auto"></audio>
 
@@ -185,6 +201,21 @@
     dragon.addEventListener("click", toggle);
     btn.addEventListener("click", toggle);
     laugh.addEventListener("ended", () => { if (laughing) startLaugh(); });
+  </script>
+
+  <!-- 访问量统计（不蒜子，免费免注册） -->
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <script>
+    // 统计脚本加载失败时（被墙/挂了），退回本地计数，不至于显示空白
+    setTimeout(() => {
+      const el = document.getElementById("busuanzi_value_site_pv");
+      if (el && (el.textContent === "…" || el.textContent === "")) {
+        const key = "nailong_local_views";
+        const n = (parseInt(localStorage.getItem(key), 10) || 0) + 1;
+        localStorage.setItem(key, n);
+        el.textContent = n + "（本机）";
+      }
+    }, 3000);
   </script>
 </body>
 </html>
