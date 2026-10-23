@@ -12,11 +12,13 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: safe center;
+      padding: 16px 0;
       background: #fffdf5;
       font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
       user-select: none;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
 
     h1 {
@@ -121,9 +123,18 @@
       100% { opacity: 0; transform: translateY(-140px) rotate(18deg); }
     }
 
+    /* 底部署名 */
+    .byline {
+      margin-top: 20px;
+      font-family: "SimSun", "宋体", "STSong", serif;
+      font-size: 12px;
+      color: #b3a892;
+      letter-spacing: 0.5px;
+    }
+
     /* 底部访问量统计 */
     .view-count {
-      margin-top: 14px;
+      margin-top: 4px;
       color: #c0a06a;
       font-size: 13px;
     }
@@ -131,6 +142,68 @@
     .view-count b {
       color: #f5a623;
       font-size: 15px;
+    }
+
+    /* 计数器下方那行红字：要和标题一个量级，一眼就能看见 */
+    .ending-tip {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: "SimHei", "黑体", "SimSun", "宋体", serif;
+      font-weight: bold;
+      font-size: clamp(20px, 4.2vw, 28px);
+      color: #ff0000;
+      letter-spacing: 1px;
+    }
+
+    /* 朝左下的箭头，轻轻晃着指方向 */
+    .ending-arrow {
+      width: 1.15em;
+      height: 1.15em;
+      flex: none;
+      color: #ff0000;
+      animation: point-sw 1.1s ease-in-out infinite;
+    }
+
+    @keyframes point-sw {
+      0%, 100% { transform: translate(0, 0); }
+      50%      { transform: translate(-5px, 5px); }
+    }
+
+    /* 左下角那块招牌，摆在跳舞奶龙右边，不挡它 */
+    .banner-link {
+      position: fixed;
+      left: calc(clamp(8px, 2.5vw, 32px) + clamp(64px, 9vw, 112px) + 14px);
+      bottom: clamp(14px, 3vw, 38px);
+      z-index: 3;
+      font-family: "SimSun", "宋体", "STSong", serif;
+      font-size: 13px;
+      color: #0000ee;
+      text-decoration: underline;
+      white-space: nowrap;
+    }
+
+    .banner-link:visited { color: #551a8b; }
+    .banner-link:hover { color: #ff0000; }
+
+    /* 播放被拦时的提示，平时不出现 */
+    .audio-tip {
+      margin-top: 8px;
+      max-width: 86vw;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #c62828;
+      text-align: center;
+    }
+
+    @media (max-width: 420px) {
+      .banner-link {
+        left: clamp(8px, 2.5vw, 32px);
+        bottom: calc(clamp(8px, 2.5vw, 32px) + 86px);
+        font-size: 12px;
+      }
     }
   </style>
 </head>
@@ -147,9 +220,24 @@
 
   <button id="btn">开笑！</button>
 
+  <p class="byline">本站“上海奶隆工程技术大学.club” is made by M1xqq</p>
+
   <p class="view-count">
     👀 本站已被围观 <b id="busuanzi_value_site_pv">…</b> 次
   </p>
+
+  <p class="ending-tip">
+    <svg class="ending-arrow" viewBox="0 0 60 60" fill="none" aria-hidden="true">
+      <path d="M54 6 L18 42" stroke="currentColor" stroke-width="7" stroke-linecap="round" />
+      <path d="M18 42 L18 22" stroke="currentColor" stroke-width="7" stroke-linecap="round" />
+      <path d="M18 42 L38 42" stroke="currentColor" stroke-width="7" stroke-linecap="round" />
+    </svg>
+    <span>点击左下角一口气看到大结局</span>
+  </p>
+
+  <a class="banner-link" href="https://www.sues.edu.cn/" target="_blank" rel="noopener">上海奶龙大学.com</a>
+
+  <p id="audio-tip" class="audio-tip" hidden></p>
 
   <audio id="laugh" src="assets/laugh.mp3" preload="auto"></audio>
 
@@ -160,18 +248,49 @@
 
     let laughing = false;
 
+    // 预览面板是 iframe，浏览器对 iframe 里的播放限制更多，先把处境判断出来
+    let inFrame = false;
+    try { inFrame = window.self !== window.top; } catch (e) { inFrame = true; }
+
+    const audioTip = document.getElementById("audio-tip");
+    function showAudioTip(msg) {
+      audioTip.textContent = msg;
+      audioTip.hidden = false;
+    }
+
     function startLaugh() {
       laughing = true;
       dragon.classList.add("laughing");
       btn.classList.add("playing");
       btn.textContent = "别笑了！";
 
-      // 从随机位置开始播，每次听感不完全一样
-      laugh.currentTime = Math.random() * 8;
-      laugh.play().catch(() => {});
+      // 先让它响起来，再随机跳一段：某些环境（本地简易服务器）不支持 Range，
+      // seek 会失败，但绝不能因此连声音都没了
+      const p = laugh.play();
+      if (p && typeof p.catch === "function") {
+        p.catch((err) => {
+          audioTip.hidden = true;
+          showAudioTip(
+            inFrame
+              ? "播放被拦（" + err.name + "）：当前是在预览窗口里，浏览器对 iframe 的限制更严。请把地址复制到 Chrome/Edge 打开，或直接双击「奶龙大笑模拟器.html」。"
+              : "播放被拦（" + err.name + "）：再点一下试试，或检查这个标签页是否被静音、系统音量是否开着。"
+          );
+        });
+      }
+      setTimeout(() => {
+        try {
+          const dur = laugh.duration;
+          if (isFinite(dur) && dur > 6) laugh.currentTime = Math.random() * (dur - 6);
+        } catch (e) {}
+      }, 80);
 
       spawnHaha();
     }
+
+    laugh.addEventListener("error", () => {
+      const code = laugh.error ? laugh.error.code : "?";
+      showAudioTip("音频加载失败（MediaError " + code + "），文件路径可能不对。");
+    });
 
     function stopLaugh() {
       laughing = false;
@@ -203,19 +322,43 @@
     laugh.addEventListener("ended", () => { if (laughing) startLaugh(); });
   </script>
 
-  <!-- 访问量统计（不蒜子，免费免注册） -->
-  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <!-- 访问量统计：线上用不蒜子，本地预览自己数，免得看到全网 localhost 的天文数字 -->
   <script>
-    // 统计脚本加载失败时（被墙/挂了），退回本地计数，不至于显示空白
-    setTimeout(() => {
+    (function () {
       const el = document.getElementById("busuanzi_value_site_pv");
-      if (el && (el.textContent === "…" || el.textContent === "")) {
+      const host = location.hostname;
+      const isLocal =
+        location.protocol === "file:" ||
+        host === "" ||
+        host === "localhost" ||
+        host === "127.0.0.1" ||
+        host === "0.0.0.0" ||
+        host === "[::1]";
+
+      function localBump(suffix) {
         const key = "nailong_local_views";
         const n = (parseInt(localStorage.getItem(key), 10) || 0) + 1;
         localStorage.setItem(key, n);
-        el.textContent = n + "（本机）";
+        el.textContent = n + (suffix || "");
       }
-    }, 3000);
+
+      if (isLocal) {
+        localBump("（本地预览）");
+        return;
+      }
+
+      const s = document.createElement("script");
+      s.async = true;
+      s.src = "https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js";
+      document.body.appendChild(s);
+
+      // 统计服务被墙 / 挂了，退回本地计数，不至于一直显示省略号
+      setTimeout(() => {
+        if (el && (el.textContent === "…" || el.textContent === "")) {
+          localBump("（本机）");
+        }
+      }, 3000);
+    })();
   </script>
 </body>
 </html>
