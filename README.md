@@ -10,7 +10,14 @@
 1. 奶龙开始上下抖动（CSS 动画，无需任何图片帧）
 2. 播放从 B 站原版视频里提取的"八级哥"魔性笑声
 3. 屏幕上不停飘出"哈哈哈哈哈"
-4. 按钮下方累计"今日已开笑 N 次"
+4. 四角各有一只跳舞的奶龙动图（来自 [Nannan-1234](https://github.com/nannan-1234) 的 PR）
+5. 底部实时显示本站累计被围观次数
+6. 计数器下方一行红字「点击左下角一口气看到大结局」，配一个朝左下的摆动箭头做视线引导
+7. 左下角挂着一块招牌「上海奶龙大学.com」，点进去是**上海工程技术大学**官网
+   （学朋友网站的做法，纯属整活，与该校无关）
+8. 底部有本站域名的署名：`本站"上海奶隆工程技术大学.club" is made by M1xqq`
+
+> 第 6、7 条是刻意做得土一点：红字、宋体、默认蓝色下划线链接。小网站就得有小网站的样子。
 
 ## 怎么运行
 
@@ -27,6 +34,11 @@
 - 或者起一个静态服务器：`python -m http.server 8000`，然后访问 <http://localhost:8000>。
 
 > 注意浏览器自动播放策略：第一次需要用户点击页面（正好我们的交互就是点击，天然没问题）。
+
+> ⚠️ 本地调试声音时有个坑：`python -m http.server` **不支持 Range 请求**，
+> 浏览器 seek 音频会失败，表现为"点了没声音"。想本地听声音，直接双击
+> `奶龙大笑模拟器.html`（无服务器、无 iframe），或者用 nginx / `npx serve` 之类
+> 支持 `206 Partial Content` 的服务器。线上站点用的是 Cloudflare，无此问题。
 ### 方式三：docker部署(Nannan-1234贡献)
 
 适合linux环境和服务器。欢迎将其部署到你的服务器上。
@@ -77,13 +89,15 @@ docker compose up -d
 ```
 main（稳定版）
  └── dev（开发整合）
-      ├── feature/laugh-audio   （大笑音频）    → 已合并
-      ├── feature/jump-shake    （抖动交互）    → 已合并
-      └── feature/laugh-counter （大笑计数器）  → 通过 PR 合并
+      ├── feature/laugh-audio   （大笑音频）        → 已合并
+      ├── feature/jump-shake    （抖动交互）        → 已合并
+      ├── feature/laugh-counter （大笑计数器）      → 通过 PR 合并
+      ├── feature/view-counter  （访问量统计）      → 已合并
+      └── feature/ending-tip    （大结局标语 + 伪链接 + 署名）→ 通过 PR 合并
 ```
 
-其中 `feature/laugh-counter` 是在 Gitee 上走 **Pull Request** 合并进 `dev` 的，
-用来完整体验"分支开发 → PR → 合并"的流程。
+其中 `feature/laugh-counter` 和 `feature/ending-tip` 都是在 Gitee 上走 **Pull Request**
+合并的，用来完整体验"分支开发 → PR → 合并"的流程。
 
 主要提交记录：
 
@@ -93,20 +107,39 @@ b4e040c feat: 初始化奶龙大笑模拟器页面骨架
 9ca75a4 feat: 点击时奶龙上下抖动，并飘出哈哈哈哈
 999eb3f feat: 新增大笑次数计数器
 a33d480 docs: 补充 README 和开发复盘
+058b6b2 feat: 增加网站访问量统计（不蒜子，失败时降级为本机计数）
+84509b6 Merge pull request #1 from nannan-1234/main   ← 朋友贡献四角动图
+feb7a09 feat: 加大结局引导标语、左下角伪链接与底部署名
+        + 修复音频播放顺序、本地环境计数虚高、小屏裁切
 ```
 
 详见 [开发复盘.md](开发复盘.md)。
 
-## 部署成公开网站（分享给朋友）
+## 线上地址
 
-1. 打开仓库 → 上方菜单 **服务** → **Gitee Pages**
-2. 部署分支选 `main`，部署目录留空（根目录）
-3. 点 **启动**，稍等片刻即可得到地址：
-   `https://hzjhzjhzjhzj.gitee.io/thefirstwork/`
-4. 把这个地址发到微信群，朋友点开就能玩
+| 地址 | 说明 |
+|---|---|
+| **https://上海奶隆工程技术大学.club** | 主站，Cloudflare Pages + 自定义中文域名 |
+| https://nailong-laugh.pages.dev | Cloudflare Pages 默认域名 |
+| https://m1xqq.github.io/nailong-laugh/ | GitHub Pages（备用，国内访问更稳时可用） |
 
-> 首次开通 Gitee Pages 需要完成实名认证。不想认证的话，
-> 直接用方式一的单文件 HTML 发给朋友也一样能玩。
+代码同时托管在两个远端：`origin` → Gitee，`github` → GitHub，`main` / `dev` 双推。
+
+## 怎么部署（Cloudflare Pages）
+
+纯静态页面，不需要构建步骤：
+
+```bash
+npm i -g wrangler
+wrangler pages deploy dist --project-name=nailong-laugh
+```
+
+`dist/` 里就是 `index.html` + `assets/` + 单文件版，直接上传即可。
+自定义域名在 Pages 项目的「自定义域」里绑定，DNS 加一条
+`CNAME  @ → nailong-laugh.pages.dev`（代理状态开启），证书由 Cloudflare 自动签发。
+
+> 为什么不用 Gitee Pages：新仓库默认不显示该入口，且必须完成实名认证。
+> 想用 Gitee Pages 也可以，部署分支选 `main`、目录留空即可。
 
 ## 目录结构
 
@@ -115,7 +148,10 @@ a33d480 docs: 补充 README 和开发复盘
 ├── 奶龙大笑模拟器.html      # 单文件版（图片音频已内联，双击即玩）
 ├── assets/
 │   ├── nailong.png         # 奶龙大笑贴图（视频截帧）
-│   └── laugh.mp3           # 奶龙大笑音频（B站原版提取）
+│   ├── laugh.mp3           # 奶龙大笑音频（B站原版提取）
+│   └── image.gif           # 四角跳舞奶龙（朋友 PR 贡献）
+├── Dockerfile              # 容器化部署
+├── compose.yaml
 ├── README.md
 └── 开发复盘.md
 ```
